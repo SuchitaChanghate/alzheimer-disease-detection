@@ -19,9 +19,12 @@ import {
     Trash2,
     Star,
     MessageSquare,
-    ChevronRight
+    ChevronRight,
+    X
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import { downloadReport } from '../utils/reportGenerator';
+import Results from '../dashboard/Results';
 
 const DoctorDashboard = () => {
     const { user } = useAuth();
@@ -32,6 +35,7 @@ const DoctorDashboard = () => {
     const [activeTab, setActiveTab] = useState('patients');
     const [showPlanModal, setShowPlanModal] = useState(false);
     const [newPlan, setNewPlan] = useState({ name: '', price: '', features: '', duration: 'Monthly' });
+    const [selectedPatientReport, setSelectedPatientReport] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -203,9 +207,34 @@ const DoctorDashboard = () => {
                                                     {new Date(p.createdAt).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
-                                                    <button className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-indigo-600 hover:text-white transition-all">
-                                                        <Download className="w-5 h-5" />
-                                                    </button>
+                                                    <div className="flex justify-end items-center gap-2">
+                                                        <button 
+                                                            onClick={() => setSelectedPatientReport(p)}
+                                                            className="text-indigo-600 font-bold text-[10px] uppercase tracking-wider hover:bg-indigo-600 hover:text-white bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition-all cursor-pointer font-outfit"
+                                                        >
+                                                            View Report
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                downloadReport({
+                                                                    userName: p.userName,
+                                                                    userEmail: p.userEmail,
+                                                                    age: p.age || '',
+                                                                    gender: p.gender || '',
+                                                                    mmse: p.mmse || '',
+                                                                    cdr: p.cdr || '',
+                                                                    prediction: p.prediction,
+                                                                    confidence: p.confidence,
+                                                                    gradCamImage: p.gradCamImage || p.grad_cam_image || '',
+                                                                    createdAt: p.createdAt
+                                                                });
+                                                            }}
+                                                            className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-indigo-600 hover:text-white transition-all cursor-pointer font-outfit"
+                                                            title="Download PDF Report"
+                                                        >
+                                                            <Download className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -318,6 +347,76 @@ const DoctorDashboard = () => {
                                     <button type="submit" className="flex-grow py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all">Create Plan</button>
                                 </div>
                             </form>
+                        </motion.div>
+                    </div>
+                )}
+
+                {/* Patient Report Detail Modal */}
+                {selectedPatientReport && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-6 overflow-y-auto">
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }} 
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-[2.5rem] p-8 md:p-12 w-full max-w-4xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
+                        >
+                            <button 
+                                onClick={() => setSelectedPatientReport(null)}
+                                className="absolute top-6 right-6 p-2 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-full transition-all cursor-pointer"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                                <div>
+                                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-widest rounded-full border border-indigo-100">Clinical Diagnostic Report Details</span>
+                                    <h3 className="text-3xl font-bold text-slate-900 mt-2">Patient: {selectedPatientReport.userName}</h3>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        downloadReport({
+                                            userName: selectedPatientReport.userName,
+                                            userEmail: selectedPatientReport.userEmail,
+                                            age: selectedPatientReport.age || '',
+                                            gender: selectedPatientReport.gender || '',
+                                            mmse: selectedPatientReport.mmse || '',
+                                            cdr: selectedPatientReport.cdr || '',
+                                            prediction: selectedPatientReport.prediction,
+                                            confidence: selectedPatientReport.confidence,
+                                            gradCamImage: selectedPatientReport.gradCamImage || selectedPatientReport.grad_cam_image || '',
+                                            createdAt: selectedPatientReport.createdAt
+                                        });
+                                    }}
+                                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 cursor-pointer font-outfit"
+                                >
+                                    <Download className="w-4 h-4" /> DOWNLOAD PDF REPORT
+                                </button>
+                            </div>
+
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Patient Email</span>
+                                    <span className="font-bold text-slate-900 text-sm break-all">{selectedPatientReport.userEmail}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Age & Gender</span>
+                                    <span className="font-bold text-slate-900 text-sm">{selectedPatientReport.age || 'N/A'} yrs / {selectedPatientReport.gender === 'M' || selectedPatientReport.gender === 0 || selectedPatientReport.gender === '0' ? 'Male' : 'Female'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">MMSE score</span>
+                                    <span className="font-bold text-slate-900 text-sm">{selectedPatientReport.mmse || 'N/A'} / 30</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">CDR score</span>
+                                    <span className="font-bold text-slate-900 text-sm">{selectedPatientReport.cdr || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            {/* Reuse Results component */}
+                            <Results result={{
+                                prediction: selectedPatientReport.prediction,
+                                confidence: selectedPatientReport.confidence,
+                                grad_cam_image: selectedPatientReport.gradCamImage || selectedPatientReport.grad_cam_image || ''
+                            }} />
                         </motion.div>
                     </div>
                 )}

@@ -35,6 +35,7 @@ def get_all_patient_predictions(current_user_id, user_role):
                     "gender": 1,
                     "mmse": 1,
                     "cdr": 1,
+                    "gradCamImage": 1,
                     "userName": "$user.name",
                     "userEmail": "$user.email"
                 }

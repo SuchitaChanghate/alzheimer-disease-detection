@@ -8,6 +8,7 @@ import Sidebar from '../components/Sidebar';
 import DoctorPlans from '../dashboard/DoctorPlans';
 import { useAuth } from '../context/AuthContext';
 import { feedbackApi } from '../services/api';
+import { downloadReport } from '../utils/reportGenerator';
 import {
     Sparkles,
     Activity,
@@ -125,8 +126,36 @@ const UserDashboard = () => {
                                                             <Stethoscope className="w-4 h-4" /> FIND SPECIALIST
                                                         </button>
                                                     )}
-                                                    <button className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-slate-100 transition-all"><Download className="w-5 h-5" /></button>
-                                                    <button className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-slate-100 transition-all"><Share2 className="w-5 h-5" /></button>
+                                                    <button
+                                                        onClick={() => {
+                                                            downloadReport({
+                                                                userName: user.name,
+                                                                userEmail: user.email,
+                                                                age: lastResult.age || '',
+                                                                gender: lastResult.gender || '',
+                                                                mmse: lastResult.mmse || '',
+                                                                cdr: lastResult.cdr || '',
+                                                                prediction: lastResult.prediction,
+                                                                confidence: lastResult.confidence,
+                                                                gradCamImage: lastResult.grad_cam_image || lastResult.gradCamImage,
+                                                                createdAt: lastResult.createdAt || new Date().toISOString()
+                                                            });
+                                                        }}
+                                                        className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                                                        title="Download PDF Report"
+                                                    >
+                                                        <Download className="w-5 h-5" />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(window.location.origin + '/results/' + (lastResult.grad_cam_image || lastResult.gradCamImage));
+                                                            alert('Grad-CAM visualization link copied to clipboard!');
+                                                        }}
+                                                        className="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-slate-100 transition-all"
+                                                        title="Copy Shareable Link"
+                                                    >
+                                                        <Share2 className="w-5 h-5" />
+                                                    </button>
                                                 </div>
                                             </div>
                                             <Results result={lastResult} />
