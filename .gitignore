@@ -1,31 +1,44 @@
-# Data & Models
-data/
-models/
+
+# Root-level datasets and model directory
+/data/
+/models/
+
+# Trained PyTorch checkpoints
 *.pt
 
-# Environment
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
 app/backend/.env
+
+# Local utility scripts
 app/backend/check_users.py
 app/backend/update_user.py
 
-# Build/JS
+# Node.js dependencies and build output
 node_modules/
-app/frontend/dist/
 app/frontend/node_modules/
+app/frontend/dist/
 
-# Python
+# Python cache and compiled files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Virtual environments
 venv/
 env/
+.venv/
 
-# OS
+# Operating system files
 .DS_Store
 Thumbs.db
 
-# Results & Runtime Outputs
+# Generated results
 results/
+app/results/
 
-
+# IDE files
+.vscode/
+.idea/
