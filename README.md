@@ -1,3 +1,6 @@
+# Will find Model in this link 
+https://drive.google.com/file/d/1Iqaa7x22alIjiMk-X2WUrz7SRRBFL1GQ/view?usp=drive_link
+
 # HEALTHAI: Easy Brain Testing 🧠✨
 
 Welcome to **HEALTHAI**, a hyper-premium medical intelligence platform designed for accessible and highly accurate Alzheimer's Disease detection. We bridge the gap between advanced neural research and simple, intuitive healthcare.
